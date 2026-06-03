@@ -58,6 +58,16 @@ public class BatchAutorouterThread extends InteractiveActionThread
 
         FRLogger.traceEntry("BatchAutorouterThread.thread_action()");
 
+        {
+            AutorouteSettings s = hdlg.get_settings().autoroute_settings;
+            Integer incompletes_at_start = hdlg.get_ratsnest().incomplete_count();
+            FRLogger.info("Batch autorouter starting: incomplete_connections=" + incompletes_at_start
+                    + ", with_fanout=" + s.get_with_fanout()
+                    + ", with_autoroute=" + s.get_with_autoroute()
+                    + ", with_postroute=" + s.get_with_postroute()
+                    + ", start_pass_no=" + s.get_start_pass_no());
+        }
+
         try
         {
             java.util.ResourceBundle resources =
