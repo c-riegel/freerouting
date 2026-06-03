@@ -37,6 +37,14 @@ public class AutorouteSettings
     static eu.mihosoft.freerouting.interactive.AutorouteSettings read_scope(Scanner p_scanner, LayerStructure p_layer_structure)
     {
         eu.mihosoft.freerouting.interactive.AutorouteSettings result = new eu.mihosoft.freerouting.interactive.AutorouteSettings(p_layer_structure.arr.length);
+        // The bare AutorouteSettings(int) constructor leaves start_pass_no/stop_pass_no at the
+        // int default of 0. A .rules file may contain (start_pass_no N) without any stop_pass_no
+        // (freerouting persists start_pass_no to save progress but never writes stop_pass_no).
+        // Without these defaults, stop_pass_no stays 0 and the batch autorouter immediately
+        // self-stops at BatchAutorouter.autoroute_passes() because start_pass_no (N) > stop_pass_no (0),
+        // routing nothing. Default to the full pass range so a partial rules file routes normally.
+        result.set_start_pass_no(1);
+        result.set_stop_pass_no(Integer.MAX_VALUE);
         boolean with_fanout = false;
         boolean with_autoroute = true;
         boolean with_postroute = true;
