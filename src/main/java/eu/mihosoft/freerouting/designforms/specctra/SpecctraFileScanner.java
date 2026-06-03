@@ -51,6 +51,16 @@ class SpecctraFileScanner implements Scanner {
    */
   private static final char [] ZZ_CMAP = zzUnpackCMap(ZZ_CMAP_PACKED);
 
+  static {
+    // KiCad exports net names containing curly braces, e.g. "~{MCLR}" (overbar
+    // notation) and "{slash}". This 2021-era lexer was generated without '{' and
+    // '}' in any accepted character class, so it throws "Illegal character '{'"
+    // mid-string. Remap both braces to the same character class as '~' - which is
+    // accepted inside names/quoted strings - so the DFA treats them identically.
+    ZZ_CMAP['{'] = ZZ_CMAP['~'];
+    ZZ_CMAP['}'] = ZZ_CMAP['~'];
+  }
+
   /** 
    * Translates DFA states to action switch labels.
    */
