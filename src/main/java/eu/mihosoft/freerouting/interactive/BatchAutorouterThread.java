@@ -92,6 +92,9 @@ public class BatchAutorouterThread extends InteractiveActionThread
             {
                 batch_autorouter.autoroute_passes();
             }
+            // If the run stopped after later passes drifted worse, revert to the pass that
+            // had the fewest incomplete connections, so the user keeps the most-complete result.
+            batch_autorouter.restore_best_board_if_better();
             hdlg.get_routing_board().finish_autoroute();
             if (hdlg.get_settings().autoroute_settings.get_with_postroute() && !this.is_stop_requested())
             {

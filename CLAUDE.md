@@ -66,10 +66,24 @@ GUI errors appear as Swing dialogs and do NOT hit the log.
 - The thin jar is not runnable via `java -jar` (no Main-Class / no bundled deps) — use the
   classpath form above.
 
+## Features added in this fork
+
+- **Stop-at-minimum autorouting (revert-to-best)** — *done*. The batch autorouter records the
+  board state of the completed pass with the fewest incomplete connections (`BatchAutorouter`
+  `min_incomplete_count`/`best_board`, via a per-pass `RatsNest` count + `RoutingBoard.clone()`).
+  When the run stops (manual background-click or natural end), `restore_best_board_if_better()`
+  reverts the live board to that best pass through `BoardHandling.restore_routing_board_after_autoroute()`
+  and shows the ratsnest, so you land on the most-complete result for manual finishing. Clicking
+  to stop also puts an immediate "Stopping autorouter…" acknowledgement on the status bar.
+  Known limitation: stopping during the very first pass (no completed pass yet) leaves the
+  partial first-pass board (nothing better to revert to).
+
 ## Planned features (next)
 
-- **Stop-at-minimum autorouting**: stop automatically at the pass with the fewest unconnected
-  traces and don't start another round (today you stop/start manually to chase the minimum).
+- **Highlight / flash the remaining incompletes on demand** — a button that briefly highlights
+  the leftover incomplete connections so they're findable; they're often short and very hard to
+  spot. Pairs with stop-at-minimum (the leftovers are exactly what you finish by hand). The
+  ratsnest already draws incompletes as airlines, so this builds on `RatsNest`/`BoardHandling`.
 - **Post-optimization beautify pass**: center trace exits on pad edges (no off-angle stubs);
   distribute parallel traces evenly for maximum spacing / minimal crosstalk.
 

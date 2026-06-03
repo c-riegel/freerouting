@@ -503,6 +503,25 @@ public class BoardHandling extends BoardHandlingImpl
     }
 
     /**
+     * Replaces the live routing board with p_board - e.g. the best (fewest incomplete
+     * connections) pass found by the batch autorouter - and shows the ratsnest so the
+     * remaining incompletes are immediately visible. The board geometry, layers, coordinate
+     * transform and graphics context are unchanged (only the routing differs), so those are
+     * kept as-is. Repainting is left to the caller.
+     */
+    public void restore_routing_board_after_autoroute(RoutingBoard p_board)
+    {
+        if (p_board == null)
+        {
+            return;
+        }
+        p_board.set_test_level(this.board.get_test_level());
+        this.board = p_board;
+        ratsnest = new RatsNest(this.board, this.locale);
+        ratsnest.show();
+    }
+
+    /**
      *  Hides the incomplete connections on the screen.
      */
     public void hide_ratsnest()
@@ -790,6 +809,12 @@ public class BoardHandling extends BoardHandlingImpl
             {
                 // The left button is used to stop the interactive action thread.
                 this.interactive_action_thread.request_stop();
+                if (this.interactive_action_thread instanceof BatchAutorouterThread)
+                {
+                    // Acknowledge the click immediately: the autorouter winds down and then
+                    // reverts to the best pass, which can take a moment after the click.
+                    screen_messages.set_status_message("Stopping autorouter — restoring the best routing found so far…");
+                }
             }
             return;
         }

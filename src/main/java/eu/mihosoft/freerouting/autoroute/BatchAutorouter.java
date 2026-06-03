@@ -163,6 +163,21 @@ public class BatchAutorouter
             }
             FRLogger.traceExit("BatchAutorouter.autoroute_pass #"+curr_pass_no+" on board '"+current_board_hash+"' making {} changes", newTraceDifferences);
 
+            // Remember the board state of the pass with the fewest incomplete connections.
+            // Only completed (non-interrupted) passes are considered, since a mid-pass board is
+            // transiently messy from ripups. On stop we revert to this best board (see
+            // restore_best_board_if_better), so the user lands on the most-complete result.
+            if (!this.is_interrupted)
+            {
+                int curr_incomplete_count =
+                        new eu.mihosoft.freerouting.interactive.RatsNest(this.routing_board, hdlg.get_locale()).incomplete_count();
+                if (curr_incomplete_count < this.min_incomplete_count)
+                {
+                    this.min_incomplete_count = curr_incomplete_count;
+                    this.best_board = (RoutingBoard) this.routing_board.clone();
+                }
+            }
+
             // check if there are still unrouted items
             if (still_unrouted_items && !is_interrupted)
             {
@@ -178,6 +193,30 @@ public class BatchAutorouter
         already_checked_board_hashes.clear();
 
         return !this.is_interrupted;
+    }
+
+    /**
+     * If some completed pass reached fewer incomplete connections than the final board state
+     * (e.g. the run was stopped after later passes drifted worse, or ripups left it worse),
+     * revert the live board to that best pass. Returns the resulting incomplete count.
+     * Call once after autoroute_passes() finishes, whether it completed or was stopped.
+     */
+    public int restore_best_board_if_better()
+    {
+        if (this.best_board == null)
+        {
+            return this.min_incomplete_count;
+        }
+        int final_incomplete_count =
+                new eu.mihosoft.freerouting.interactive.RatsNest(this.routing_board, hdlg.get_locale()).incomplete_count();
+        if (final_incomplete_count > this.min_incomplete_count)
+        {
+            FRLogger.info("Reverting board to the best autoroute pass: " + this.min_incomplete_count
+                    + " incomplete connections (final pass had " + final_incomplete_count + ").");
+            hdlg.restore_routing_board_after_autoroute(this.best_board);
+            return this.min_incomplete_count;
+        }
+        return final_incomplete_count;
     }
 
     /**
@@ -429,6 +468,10 @@ public class BatchAutorouter
     private final BoardHandling hdlg;
     private final RoutingBoard routing_board;
     private boolean is_interrupted = false;
+    // Best (fewest incomplete connections) board state seen at a completed pass boundary.
+    // Used to revert to the most-complete result when the run stops (manually or naturally).
+    private int min_incomplete_count = Integer.MAX_VALUE;
+    private RoutingBoard best_board = null;
     private final boolean remove_unconnected_vias;
     private final AutorouteControl.ExpansionCostFactor[] trace_cost_arr;
     private final boolean retain_autoroute_database;
