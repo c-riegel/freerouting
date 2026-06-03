@@ -122,6 +122,11 @@ public class BatchAutorouterThread extends InteractiveActionThread
                 {
                     curr_message = resources.getString("completed");
                 }
+                // Refresh the ratsnest from the current board before reading the count.
+                // The cached ratsnest still reflects the pre-routing board (it is not updated
+                // during the batch run), so without this the message reports the starting
+                // incomplete count instead of what is actually left after a partial/stopped run.
+                hdlg.update_ratsnest();
                 Integer incomplete_count = hdlg.get_ratsnest().incomplete_count();
                 String end_message = resources.getString("autoroute") + " " + curr_message + ", " + incomplete_count.toString() +
                         " " + resources.getString("connections_not_found");
