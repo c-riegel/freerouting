@@ -77,13 +77,17 @@ GUI errors appear as Swing dialogs and do NOT hit the log.
   to stop also puts an immediate "Stopping autorouter…" acknowledgement on the status bar.
   Known limitation: stopping during the very first pass (no completed pass yet) leaves the
   partial first-pass board (nothing better to revert to).
+- **"Find Incompletes" highlight** — *done*. A toolbar button (next to Autorouter) calls
+  `BoardHandling.highlight_incompletes()`, which recomputes the ratsnest and blinks every
+  incomplete a few times (~3s) as a bold yellow airline with a **fixed-screen-size ring** at
+  each endpoint (`draw_incomplete_highlight()`), so even very short incompletes are findable at
+  any zoom. The status bar reports the count. Auto-clears via a Swing `Timer`.
 
-## Planned features (next)
+## Planned features / TODO (next)
 
-- **Highlight / flash the remaining incompletes on demand** — a button that briefly highlights
-  the leftover incomplete connections so they're findable; they're often short and very hard to
-  spot. Pairs with stop-at-minimum (the leftovers are exactly what you finish by hand). The
-  ratsnest already draws incompletes as airlines, so this builds on `RatsNest`/`BoardHandling`.
+- **Object Visibility: default "component outlines" to 0** — in
+  `boardgraphics/ColorIntensityTable.java`, `arr[ObjectNames.COMPONENT_OUTLINES.ordinal()]`
+  defaults to `1`; set to `0` so component outlines start hidden.
 - **Post-optimization beautify pass**: center trace exits on pad edges (no off-angle stubs);
   distribute parallel traces evenly for maximum spacing / minimal crosstalk.
 

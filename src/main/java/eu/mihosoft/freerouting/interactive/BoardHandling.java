@@ -521,6 +521,86 @@ public class BoardHandling extends BoardHandlingImpl
         ratsnest.show();
     }
 
+    // --- "Find incompletes" temporary highlight ---------------------------------------------
+    private javax.swing.Timer incomplete_highlight_timer = null;
+    private boolean incomplete_highlight_visible = false;
+
+    /**
+     * Briefly blinks the remaining incomplete connections so they are easy to find on a busy
+     * board. Each is drawn as a bold airline with a fixed-screen-size ring at both ends, so even
+     * very short incompletes stay visible at any zoom level. Auto-clears after a few blinks.
+     */
+    public void highlight_incompletes()
+    {
+        if (board == null)
+        {
+            return;
+        }
+        // Recompute the ratsnest so the highlight reflects the current board state.
+        ratsnest = new RatsNest(this.board, this.locale);
+        ratsnest.show();
+        if (ratsnest.get_airlines().length == 0)
+        {
+            screen_messages.set_status_message("No incomplete connections - the board is fully routed.");
+            incomplete_highlight_visible = false;
+            if (get_panel() != null)
+            {
+                get_panel().repaint();
+            }
+            return;
+        }
+        screen_messages.set_status_message(ratsnest.incomplete_count() + " incomplete connections highlighted.");
+        if (incomplete_highlight_timer != null && incomplete_highlight_timer.isRunning())
+        {
+            incomplete_highlight_timer.stop();
+        }
+        // Blink: start visible, toggle every 400ms, end hidden after ~3 seconds.
+        final int[] toggles_left = { 7 };
+        incomplete_highlight_visible = true;
+        if (get_panel() != null)
+        {
+            get_panel().repaint();
+        }
+        incomplete_highlight_timer = new javax.swing.Timer(400, new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                toggles_left[0]--;
+                incomplete_highlight_visible = !incomplete_highlight_visible;
+                if (toggles_left[0] <= 0)
+                {
+                    incomplete_highlight_visible = false;
+                    incomplete_highlight_timer.stop();
+                }
+                if (get_panel() != null)
+                {
+                    get_panel().repaint();
+                }
+            }
+        });
+        incomplete_highlight_timer.start();
+    }
+
+    private void draw_incomplete_highlight(Graphics p_graphics)
+    {
+        java.awt.Graphics2D g2 = (java.awt.Graphics2D) p_graphics;
+        java.awt.Color old_color = g2.getColor();
+        java.awt.Stroke old_stroke = g2.getStroke();
+        g2.setColor(java.awt.Color.YELLOW);
+        g2.setStroke(new java.awt.BasicStroke(2.0f));
+        final int ring_radius = 11;   // fixed screen pixels, independent of zoom
+        for (RatsNest.AirLine curr_line : ratsnest.get_airlines())
+        {
+            java.awt.geom.Point2D from = graphics_context.coordinate_transform.board_to_screen(curr_line.from_corner);
+            java.awt.geom.Point2D to = graphics_context.coordinate_transform.board_to_screen(curr_line.to_corner);
+            g2.drawLine((int) from.getX(), (int) from.getY(), (int) to.getX(), (int) to.getY());
+            g2.drawOval((int) from.getX() - ring_radius, (int) from.getY() - ring_radius, 2 * ring_radius, 2 * ring_radius);
+            g2.drawOval((int) to.getX() - ring_radius, (int) to.getY() - ring_radius, 2 * ring_radius, 2 * ring_radius);
+        }
+        g2.setStroke(old_stroke);
+        g2.setColor(old_color);
+    }
+
     /**
      *  Hides the incomplete connections on the screen.
      */
@@ -726,6 +806,11 @@ public class BoardHandling extends BoardHandlingImpl
         if (interactive_action_thread != null)
         {
             interactive_action_thread.draw(p_graphics);
+        }
+        // Draw the temporary "find incompletes" highlight on top of everything else.
+        if (incomplete_highlight_visible && ratsnest != null && graphics_context != null)
+        {
+            draw_incomplete_highlight(p_graphics);
         }
     }
 

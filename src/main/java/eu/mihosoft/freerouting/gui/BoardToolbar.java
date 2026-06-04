@@ -117,7 +117,7 @@ class BoardToolbar extends javax.swing.JPanel
         });
         
         middle_toolbar.add(autoroute_button);
-        
+
         final javax.swing.JLabel separator_2 = new javax.swing.JLabel();
         separator_2.setMaximumSize(new java.awt.Dimension(10, 10));
         separator_2.setPreferredSize(new java.awt.Dimension(10, 10));
@@ -169,7 +169,20 @@ class BoardToolbar extends javax.swing.JPanel
         });
         
         middle_toolbar.add(incompletes_button);
-        
+
+        final javax.swing.JButton highlight_incompletes_button = new javax.swing.JButton();
+        highlight_incompletes_button.setText("Find Incompletes");
+        highlight_incompletes_button.setToolTipText("Briefly blinks the remaining incomplete connections so they are easy to locate.");
+        highlight_incompletes_button.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                board_frame.board_panel.board_handling.highlight_incompletes();
+            }
+        });
+
+        middle_toolbar.add(highlight_incompletes_button);
+
         final javax.swing.JButton violation_button = new javax.swing.JButton();
         violation_button.setText(resources.getString("violations_button"));
         violation_button.setToolTipText(resources.getString("violations_button_tooltip"));
