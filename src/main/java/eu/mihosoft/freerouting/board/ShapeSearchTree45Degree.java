@@ -246,16 +246,20 @@ public class ShapeSearchTree45Degree extends ShapeSearchTree
         // opposite of this line.
 
         Collection<IncompleteFreeSpaceExpansionRoom> result = new LinkedList<IncompleteFreeSpaceExpansionRoom>();
-        if (p_incomplete_room.get_contained_shape().is_empty())
+        TileShape contained_shape = p_incomplete_room.get_contained_shape();
+        // Tight-clearance routing can produce incomplete rooms whose contained shape is null (not just
+        // empty). The original code only handled "empty" and NPE'd on null here, which aborted the whole
+        // complete_expansion_room() call and blocked routing. Treat null the same as empty (graceful).
+        if (contained_shape == null || contained_shape.is_empty())
         {
             if (this.board.get_test_level().ordinal() >= TestLevel.ALL_DEBUGGING_OUTPUT.ordinal())
             {
-                FRLogger.warn("ShapeSearchTree45Degree.restrain_shape: p_shape_to_be_contained is empty");
+                FRLogger.warn("ShapeSearchTree45Degree.restrain_shape: p_shape_to_be_contained is null or empty");
             }
             return result;
         }
         IntOctagon room_shape = p_incomplete_room.get_shape().bounding_octagon();
-        IntOctagon shape_to_be_contained = p_incomplete_room.get_contained_shape().bounding_octagon();
+        IntOctagon shape_to_be_contained = contained_shape.bounding_octagon();
         double cut_line_distance = -1;
         int restraining_line_no = -1;
 
