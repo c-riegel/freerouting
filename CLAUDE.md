@@ -85,9 +85,6 @@ GUI errors appear as Swing dialogs and do NOT hit the log.
 
 ## Planned features / TODO (next)
 
-- **Object Visibility: default "component outlines" to 0** — in
-  `boardgraphics/ColorIntensityTable.java`, `arr[ObjectNames.COMPONENT_OUTLINES.ordinal()]`
-  defaults to `1`; set to `0` so component outlines start hidden.
 - **Post-optimization beautify pass**: center trace exits on pad edges (no off-angle stubs);
   distribute parallel traces evenly for maximum spacing / minimal crosstalk.
 

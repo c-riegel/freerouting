@@ -48,7 +48,7 @@ public class ColorIntensityTable implements java.io.Serializable
         arr[ObjectNames.KEEPOUTS.ordinal()] = 0.2;
         arr[ObjectNames.VIA_KEEPOUTS.ordinal()] = 0.2;
         arr[ObjectNames.PLACE_KEEPOUTS.ordinal()] = 0.2;
-        arr[ObjectNames.COMPONENT_OUTLINES.ordinal()] = 1;
+        arr[ObjectNames.COMPONENT_OUTLINES.ordinal()] = 0;
         arr[ObjectNames.HILIGHT.ordinal()] = 0.8;
         arr[ObjectNames.INCOMPLETES.ordinal()] = 1;
         arr[ObjectNames.LENGTH_MATCHING_AREAS.ordinal()] = 0.1;
