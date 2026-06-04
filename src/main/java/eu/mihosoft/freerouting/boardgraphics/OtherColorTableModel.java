@@ -38,10 +38,10 @@ public class OtherColorTableModel extends ColorTableModel implements java.io.Ser
         super(1, p_locale);
         data[0] = new Color [ColumnNames.values().length];
         Object[] curr_row = data[0];
-        curr_row[ColumnNames.BACKGROUND.ordinal()] = new Color(70, 70, 70);
+        curr_row[ColumnNames.BACKGROUND.ordinal()] = new Color(0, 16, 35);     // KiCad dark navy
         curr_row[ColumnNames.HIGHLIGHT.ordinal()] = Color.white;
-        curr_row[ColumnNames.INCOMPLETES.ordinal()] = Color.white;
-        curr_row[ColumnNames.OUTLINE.ordinal()] = new Color(100, 150, 255);
+        curr_row[ColumnNames.INCOMPLETES.ordinal()] = new Color(0, 248, 255);  // KiCad ratsnest cyan
+        curr_row[ColumnNames.OUTLINE.ordinal()] = new Color(208, 210, 205);   // KiCad Edge.Cuts
         curr_row[ColumnNames.VIOLATIONS.ordinal()] = Color.magenta;
         curr_row[ColumnNames.COMPONENT_FRONT.ordinal()] = Color.blue;
         curr_row[ColumnNames.COMPONENT_BACK.ordinal()] = Color.red;

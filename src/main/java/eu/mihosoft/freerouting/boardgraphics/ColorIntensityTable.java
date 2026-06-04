@@ -41,10 +41,10 @@ public class ColorIntensityTable implements java.io.Serializable
     public ColorIntensityTable()
     {
         arr = new double [ObjectNames.values().length];
-        arr[ObjectNames.TRACES.ordinal()] = 0.4;
-        arr[ObjectNames.VIAS.ordinal()] = 0.6;
-        arr[ObjectNames.PINS.ordinal()] = 0.6;
-        arr[ObjectNames.CONDUCTION_AREAS.ordinal()] = 0.2;
+        arr[ObjectNames.TRACES.ordinal()] = 0.8;
+        arr[ObjectNames.VIAS.ordinal()] = 0.8;
+        arr[ObjectNames.PINS.ordinal()] = 0.8;
+        arr[ObjectNames.CONDUCTION_AREAS.ordinal()] = 0.45;
         arr[ObjectNames.KEEPOUTS.ordinal()] = 0.2;
         arr[ObjectNames.VIA_KEEPOUTS.ordinal()] = 0.2;
         arr[ObjectNames.PLACE_KEEPOUTS.ordinal()] = 0.2;

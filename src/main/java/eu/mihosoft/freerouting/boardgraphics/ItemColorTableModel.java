@@ -40,6 +40,12 @@ public class ItemColorTableModel extends ColorTableModel implements java.io.Seri
         int row_count = p_layer_structure.arr.length;
         final int item_type_count = ColumnNames.values().length - 1;
         int signal_layer_no = 0;
+        // Inner-copper colors of the KiCad "KiCad Default" theme (In1.Cu, In2.Cu, ... cycled).
+        final Color[] kicad_inner_colors = {
+            new Color(127, 200, 127), new Color(206, 125, 44), new Color(79, 203, 203),
+            new Color(219, 98, 139), new Color(167, 165, 198), new Color(40, 204, 217),
+            new Color(232, 178, 167), new Color(242, 237, 161),
+        };
         for( int layer = 0; layer < row_count; ++layer)
         {
             boolean is_signal_layer = p_layer_structure.arr[layer].is_signal;
@@ -49,7 +55,7 @@ public class ItemColorTableModel extends ColorTableModel implements java.io.Seri
             if (layer == 0)
             {
                 curr_row[ColumnNames.PINS.ordinal()] = new Color(150, 50, 0);
-                curr_row[ColumnNames.TRACES.ordinal()] = Color.red;
+                curr_row[ColumnNames.TRACES.ordinal()] = new Color(200, 52, 52);   // KiCad F.Cu
                 curr_row[ColumnNames.CONDUCTION_AREAS.ordinal()] = new Color(0, 150, 0);
                 curr_row[ColumnNames.KEEPOUTS.ordinal()] = new Color(0, 110, 110);
                 curr_row[ColumnNames.PLACE_KEEPOUTS.ordinal()] = new Color(150, 50, 0);
@@ -57,7 +63,7 @@ public class ItemColorTableModel extends ColorTableModel implements java.io.Seri
             else if (layer == row_count - 1)
             {
                 curr_row[ColumnNames.PINS.ordinal()] = new Color(160, 80, 0);
-                curr_row[ColumnNames.TRACES.ordinal()] = Color.blue;
+                curr_row[ColumnNames.TRACES.ordinal()] = new Color(77, 127, 196);   // KiCad B.Cu
                 curr_row[ColumnNames.CONDUCTION_AREAS.ordinal()] = new Color(100, 100, 0);
                 curr_row[ColumnNames.KEEPOUTS.ordinal()] = new Color(0, 100, 160);
                 curr_row[ColumnNames.PLACE_KEEPOUTS.ordinal()] = new Color(160, 80, 0);
@@ -66,33 +72,15 @@ public class ItemColorTableModel extends ColorTableModel implements java.io.Seri
             {
                 if (is_signal_layer)
                 {
-                    // currenntly 6 different default colors for traces on the inner layers
-                    final int different_inner_colors = 6;
-                    int remainder = signal_layer_no % different_inner_colors;
-                    if (remainder % different_inner_colors == 1)
+                    // Match KiCad's inner-copper sequence (In1.Cu, In2.Cu, ...). signal_layer_no
+                    // is 1 for the first inner signal layer (layer 0 already counted), so index
+                    // by signal_layer_no - 1, cycling for boards with many inner layers.
+                    int inner_index = (signal_layer_no - 1) % kicad_inner_colors.length;
+                    if (inner_index < 0)
                     {
-                        curr_row[ColumnNames.TRACES.ordinal()] = Color.GREEN;
+                        inner_index = 0;
                     }
-                    else if (remainder % different_inner_colors == 2)
-                    {
-                        curr_row[ColumnNames.TRACES.ordinal()] = Color.YELLOW;
-                    }
-                    else if (remainder % different_inner_colors == 3)
-                    {
-                        curr_row[ColumnNames.TRACES.ordinal()] = new Color(200, 100, 255);
-                    }
-                    else if (remainder % different_inner_colors == 4)
-                    {
-                        curr_row[ColumnNames.TRACES.ordinal()] = new Color(255, 150, 150);
-                    }
-                    else if (remainder % different_inner_colors == 5)
-                    {
-                        curr_row[ColumnNames.TRACES.ordinal()] = new Color(100, 150, 0);
-                    }
-                    else
-                    {
-                        curr_row[ColumnNames.TRACES.ordinal()] = new Color(0, 200, 255);
-                    }
+                    curr_row[ColumnNames.TRACES.ordinal()] = kicad_inner_colors[inner_index];
                 }
                 else // power layer
                 {
@@ -103,7 +91,9 @@ public class ItemColorTableModel extends ColorTableModel implements java.io.Seri
                 curr_row[ColumnNames.KEEPOUTS.ordinal()] = new Color(0, 200, 200);
                 curr_row[ColumnNames.PLACE_KEEPOUTS.ordinal()] = new Color(150, 50, 0);
             }
-            curr_row[ColumnNames.VIAS.ordinal()] = new Color(200, 200, 0);
+            curr_row[ColumnNames.VIAS.ordinal()] = new Color(194, 194, 0);   // KiCad plated hole
+            // KiCad draws pads in their copper-layer color, so match pads to the layer's trace color.
+            curr_row[ColumnNames.PINS.ordinal()] = curr_row[ColumnNames.TRACES.ordinal()];
             curr_row[ColumnNames.FIXED_VIAS.ordinal()] = curr_row[ColumnNames.VIAS.ordinal()];
             curr_row[ColumnNames.FIXED_TRACES.ordinal()] = curr_row[ColumnNames.TRACES.ordinal()];
             curr_row[ColumnNames.VIA_KEEPOUTS.ordinal()] = new Color(100, 100, 100);
