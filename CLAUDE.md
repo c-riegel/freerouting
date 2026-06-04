@@ -40,6 +40,17 @@ java -cp "$CP" eu.mihosoft.freerouting.gui.MainApplication
 Main class: `eu.mihosoft.freerouting.gui.MainApplication`. Logs go to stdout (log4j);
 GUI errors appear as Swing dialogs and do NOT hit the log.
 
+### Log file (important for debugging)
+log4j writes a **full-detail (TRACE) log file** to **`logs/freerouter.log`**, *relative to the
+working directory the app was launched from*:
+- Launched from the **desktop `.command`** (no `cd`) → **`~/logs/freerouter.log`** (i.e.
+  `/Users/chris/logs/freerouter.log`).
+- Launched from the **repo dir** (`./gradlew run` or `java` from `app/`) →
+  `<repo>/logs/freerouter.log`.
+The console only shows INFO+, but the file has everything — read it directly instead of asking the
+user to copy-paste console output. Config: `src/main/resources/log4j2.xml`.
+NB: `FRLogger` only has `info()/warn()/error()` (+ `traceEntry/traceExit`); there is **no `debug()`**.
+
 ## Our fixes on top of v1.4.4
 
 1. **`build.gradle`** — removed three plugins (`net.nemerosa.versioning`, `com.jfrog.bintray`,
@@ -65,6 +76,14 @@ GUI errors appear as Swing dialogs and do NOT hit the log.
   board stops it** (by design): `BoardHandling.left_button_clicked` → `request_stop()`.
 - The thin jar is not runnable via `java -jar` (no Main-Class / no bundled deps) — use the
   classpath form above.
+- **Saved `.bin` boards + `serialVersionUID`:** File→Save serializes the routed board to `.bin`.
+  The board item classes had NO explicit `serialVersionUID`, so *adding a method/field* to any of
+  them changed the auto-computed id and made old `.bin` files fail to load
+  (`InvalidClassException ... local class incompatible`). We pinned explicit `serialVersionUID` on
+  `PolylineTrace`, `BasicBoard`, `RoutingBoard`, `Via`, `Pin` (values match the first dashcam.bin).
+  Keep them pinned; if you make a NEW serialized board class, give it an explicit id too. To recover
+  the id a `.bin` expects, read the 8 bytes after the class name in the stream (see the python
+  snippet used on 2026-06-04).
 
 ## Features added in this fork
 

@@ -52,6 +52,9 @@ import eu.mihosoft.freerouting.logger.FRLogger;
  */
 public class PolylineTrace extends Trace implements java.io.Serializable
 {
+    // Pinned so adding methods/static fields here does not change the auto-computed id and break
+    // reload of saved .bin boards (matches the dashcam.bin saved 2026-06-04). See CLAUDE.md.
+    private static final long serialVersionUID = 2358240736648905071L;
 
     private static final int MAX_NORMALIZATION_DEPTH = 16;
 

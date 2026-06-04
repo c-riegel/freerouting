@@ -58,6 +58,7 @@ import eu.mihosoft.freerouting.autoroute.CompleteFreeSpaceExpansionRoom;
  */
 public class RoutingBoard extends BasicBoard implements java.io.Serializable
 {
+    private static final long serialVersionUID = -321571730847717832L;   // pinned for .bin reload stability
 
     /**
      * Creates a new instance of a routing Board with surrounding box

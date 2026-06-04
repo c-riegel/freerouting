@@ -58,6 +58,8 @@ import eu.mihosoft.freerouting.datastructures.UndoableObjects;
  */
 public class BasicBoard implements java.io.Serializable
 {
+    // Pinned so adding methods here does not change the auto-computed id and break .bin reload.
+    private static final long serialVersionUID = 8788648037751897717L;
 
     /**
      * Creates a new instance of a routing Board with surrounding box
@@ -1487,8 +1489,8 @@ public class BasicBoard implements java.io.Serializable
      */
     public void generate_snapshot()
     {
-        FRLogger.info("Generating snapshot");
-
+        // (No log here: the batch optimizer snapshots once per optimized trace, which floods the
+        // console. Snapshots are still made - they are the undo restore points.)
         item_list.generate_snapshot();
         components.generate_snapshot();
     }

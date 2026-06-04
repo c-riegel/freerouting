@@ -42,6 +42,7 @@ import eu.mihosoft.freerouting.logger.FRLogger;
  */
 public class Via extends DrillItem implements java.io.Serializable
 {
+    private static final long serialVersionUID = 6833768280431866697L;   // pinned for .bin reload stability
 
     /** Creates a new instance of Via with the input parameters*/
     public Via(Padstack p_padstack, Point p_center, int[] p_net_no_arr, int p_clearance_type, int p_id_no,
