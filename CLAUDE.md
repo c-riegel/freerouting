@@ -83,10 +83,42 @@ GUI errors appear as Swing dialogs and do NOT hit the log.
   each endpoint (`draw_incomplete_highlight()`), so even very short incompletes are findable at
   any zoom. The status bar reports the count. Auto-clears via a Swing `Timer`.
 
-## Planned features / TODO (next)
+## Beautify engine (multi-rule cleanup) — spec from user before/after examples
 
-- **Post-optimization beautify pass**: center trace exits on pad edges (no off-angle stubs);
-  distribute parallel traces evenly for maximum spacing / minimal crosstalk.
+Goal: a post-route "Beautify" pass (toolbar button, on-demand, re-runnable) that cleans up routed
+geometry to these rules. Built rule-by-rule; hardest last. (Branch: `beautify`.)
+
+- **Rule 1 — straight pad exits** *(REUSE APPROACH RULED OUT — see findings; needs a from-scratch
+  geometry approach)*. A trace must leave its pad with a **straight, perpendicular stub** (0.010")
+  out the face it heads toward (e.g. the short/"south" face of an elongated SMD pad), *then* turn at
+  45° — never exit at 45° straight off the pad corner.
+
+  **Overnight findings (2026-06-03, blind/headless — must re-verify with eyes on a real bad exit):**
+  Tried reusing `PolylineTrace.correct_connection_to_pin()` (raise `pin_edge_to_turn_dist` to 0.010"
+  = 2540 board units, board unit = 0.1µm — conversion verified correct — then run it over all pad
+  ends). **This is a no-op on freerouting-routed boards** and was reverted. Headless test on
+  dashcam (autoroute 1 pass, and autoroute+postroute): of ~709 pad-connected trace ends,
+  **~706 already PASS** `check_connection_to_pin()` even at the 0.010" requirement, and the ~3 that
+  fail can't be corrected (clearance) and are skipped → **0 changed**. The autorouter/optimizer
+  already produce perpendicular exits with long-enough straight segments *by freerouting's own
+  definition*. This matches the user's live test (clicking Beautify gave "0 beautified").
+  CONCLUSION: freerouting's legality check (`check_connection_to_pin`) says the user's exits are
+  already fine, yet the user *sees* 45° exits → the discrepancy must be diagnosed directly.
+  **Next step (do FIRST, with the user): pick one visibly-bad exit, log that exact trace's corner
+  coordinates + last-segment direction/length + `check_connection_to_pin` result**, to learn what
+  freerouting sees vs what the user sees. Only then design the real fix (likely a from-scratch
+  reconstruction of the exit polyline that forces a 0.010" perpendicular stub + 45° transition,
+  independent of freerouting's "is it legal" check; possibly the bad exits are from *manual* routing
+  which doesn't enforce exit restrictions). The reverted prototype lives in git history on this
+  branch if useful as scaffolding.
+- **Rule 2 — via entry/exit at 45°/90°, centered**. Traces must meet a **via center** at 45/90
+  increments, not "touching any way possible." Extend the exit-restriction idea to vias (drill items).
+- **Rule 3 — no acid traps**. Eliminate acute-angle junctions where traces meet pads/traces.
+  freerouting has some acid-trap removal already; strengthen it.
+- **Rule 4 — spacing & channels** *(hardest; likely partial)*. Maximize spacing where there's room,
+  even/consistent spacing, and route through the **central channel between pads** instead of hugging
+  them. Per-segment lateral shift via `Line.translate` (IntPoint-only → 45/90 boards) validated
+  against the search tree; "route through channel instead of next to pad" may need re-routing.
 
 ## Git
 
